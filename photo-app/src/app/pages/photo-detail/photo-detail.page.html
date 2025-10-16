@@ -9,6 +9,7 @@
 
 <ion-content *ngIf="photo; else notFound">
   <div class="container">
+    <!-- Utilise une valeur string sûre renvoyée par getPhotoSrc -->
     <img [src]="photoSrc" class="full" alt="Photo" />
     <div class="meta">
       <div>{{ photo.timestamp | date:'medium' }}</div>

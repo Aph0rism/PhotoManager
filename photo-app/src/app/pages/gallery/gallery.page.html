@@ -13,12 +13,21 @@
 </ion-header>
 
 <ion-content>
-  <div class="grid" role="grid">
-    <div *ngFor="let p of photos" class="thumb" (click)="openDetail(p)">
-      <img [src]="getSrc(p)" alt="photo" />
-      <ion-badge class="like" *ngIf="p.liked">♥</ion-badge>
+  <ng-container *ngIf="photos && photos.length > 0; else empty">
+    <div class="grid" role="grid">
+      <div *ngFor="let p of photos" class="thumb" (click)="openDetail(p)">
+        <!-- getSrc doit renvoyer une string vide si pas de src -->
+        <img [src]="getSrc(p)" alt="photo" />
+        <ion-badge class="like" *ngIf="p.liked">♥</ion-badge>
+      </div>
     </div>
-  </div>
+  </ng-container>
+
+  <ng-template #empty>
+    <div class="empty-state ion-padding">
+      Aucune photo pour le moment — prends ta première photo !
+    </div>
+  </ng-template>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="takePhoto()">
