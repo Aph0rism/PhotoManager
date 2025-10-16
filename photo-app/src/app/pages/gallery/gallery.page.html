@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Galerie</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/map">
+        <ion-icon slot="icon-only" name="map"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/settings">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="photos && photos.length > 0; else empty">
+    <div class="grid" role="grid">
+      <div *ngFor="let p of photos" class="thumb" (click)="openDetail(p)">
+        <!-- getSrc doit renvoyer une string vide si pas de src -->
+        <img [src]="getSrc(p)" alt="photo" />
+        <ion-badge class="like" *ngIf="p.liked">♥</ion-badge>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #empty>
+    <div class="empty-state ion-padding">
+      Aucune photo pour le moment — prends ta première photo !
+    </div>
+  </ng-template>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="takePhoto()">
+      <ion-icon name="camera"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/gallery"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Photo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="photo; else notFound">
+  <div class="container">
+    <!-- Utilise une valeur string sûre renvoyée par getPhotoSrc -->
+    <img [src]="photoSrc" class="full" alt="Photo" />
+    <div class="meta">
+      <div>{{ photo.timestamp | date:'medium' }}</div>
+      <div *ngIf="photo.latitude">Lat: {{photo.latitude | number:'1.4-6'}}, Lng: {{photo.longitude | number:'1.4-6'}}</div>
+      <ion-button (click)="toggleLike()">
+        <ion-icon [name]="photo.liked ? 'heart' : 'heart-outline'"></ion-icon>
+        {{ photo.liked ? 'Liked' : 'Like' }}
+      </ion-button>
+      <ion-button color="danger" (click)="deletePhoto()">Supprimer</ion-button>
+    </div>
+  </div>
+</ion-content>
+
+<ng-template #notFound>
+  <ion-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Photo introuvable</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        Cette photo est introuvable — elle a peut‑être été supprimée.
+      </ion-card-content>
+      <ion-button routerLink="/gallery">Retour à la galerie</ion-button>
+    </ion-card>
+  </ion-content>
+</ng-template>
