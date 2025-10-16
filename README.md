@@ -193,24 +193,6 @@ Testing
 
 ---
 
-## Améliorations recommandées / roadmap
-
-- Remplacer localForage par SQLite sur mobile (capacitor-community/sqlite) pour performances et requêtes avancées.
-- Génération de thumbnails pour accélérer la galerie (préserver versions réduites).
-- Sync cloud : option d'export / synchronisation avec Firebase Storage / Firestore ou S3.
-- Fonctionnalités sociales : partage, export, tags, filtres, albums.
-- Tests : ajouter e2e (Cypress) et tests unitaires stricte.
-- Gestion améliorée des permissions Android 13+ (runtime READ_MEDIA_IMAGES).
-
----
-
-## Licence & contact
-
-- Licence : à définir (MIT recommandé si tu veux open-source).
-- Contact : repository GitHub — https://github.com/Aph0rism/PhotoManager
-
----
-
 Annexes : commandes récapitulatives
 ```bash
 # installer ionic
@@ -237,5 +219,3 @@ npx cap open android
 # développement web
 ionic serve
 ```
-
-Merci — ce README rassemble les objectifs, l'architecture, le guide d'installation et les bonnes pratiques. Il sert de documentation initiale pour le dépôt PhotoManager et doit être gardé à jour quand tu fais évoluer l'architecture (ex. passage à SQLite, ajout de sync cloud, changement de gestion des permissions).
