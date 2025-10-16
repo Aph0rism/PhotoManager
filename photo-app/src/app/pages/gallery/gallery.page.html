@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Galerie</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/map">
+        <ion-icon slot="icon-only" name="map"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/settings">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="grid" role="grid">
+    <div *ngFor="let p of photos" class="thumb" (click)="openDetail(p)">
+      <img [src]="getSrc(p)" alt="photo" />
+      <ion-badge class="like" *ngIf="p.liked">♥</ion-badge>
+    </div>
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="takePhoto()">
+      <ion-icon name="camera"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
