@@ -1,28 +1,34 @@
-import { enableProdMode, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { AppComponent } from './app/app.component';
-import { PermissionService } from './app/services/permission.service';
 import { appRoutes } from './app/app.routes';
+import { PhotoService } from './app/services/photo.service';
 
+// IMPORTANT: loader PWA elements pour la caméra web (Ionic)
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
-
-// initialiser les pwa elements pour la version web
 defineCustomElements(window);
 
-export function initAppFactory(perm: PermissionService) {
-  return () => perm.requestAllPermissions();
+/**
+ * Initialise l'application en chargeant les photos sauvegardées (ou en demandant les permissions)
+ * Assure-toi que PhotoService expose une méthode `loadSaved()` qui retourne void | Promise<void>
+ */
+
+export function initAppFactory(photoService: PhotoService) {
+  return () => photoService.addNewToGallery?.();
 }
+
 
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(IonicModule.forRoot()),
     provideRouter(appRoutes),
+    PhotoService,
     {
       provide: APP_INITIALIZER,
       useFactory: initAppFactory,
-      deps: [PermissionService],
+      deps: [PhotoService],
       multi: true
     }
   ]
