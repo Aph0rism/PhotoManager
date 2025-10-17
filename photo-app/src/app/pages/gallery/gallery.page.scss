@@ -5,7 +5,7 @@
   background: var(--background);
   min-height: 100%;
   box-sizing: border-box;
-  padding-bottom: 160px; /* espace pour FAB */
+  padding-bottom: 160px;
 }
 
 .container {
@@ -13,6 +13,17 @@
   margin: 0 auto;
   padding-inline: 8px;
 }
+
+/* grid responsive */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 8px 0 20px;
+  padding: 0 6px;
+}
+
+.photo-card { padding: 6px; position: relative; }
 
 /* empty state */
 .empty {
@@ -29,15 +40,6 @@
   font-size: 48px;
   color: var(--ion-color-primary);
   opacity: 0.95;
-}
-
-/* grid responsive */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 14px;
-  margin: 8px 0 20px;
-  padding: 0 6px;
 }
 
 /* card */
@@ -103,6 +105,7 @@
   box-shadow: 0 6px 16px rgba(22,27,34,0.06);
   transition: transform 120ms ease, background 120ms;
 }
+.like-btn { position: absolute; top: 10px; right: 10px; z-index: 12; /* ... */ }
 .like-btn ion-icon {
   color: var(--ion-color-medium);
   font-size: 18px;

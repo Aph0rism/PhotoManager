@@ -16,9 +16,9 @@
       <article
         class="photo-card"
         *ngFor="let photo of photoService.photos; index as i"
-        (click)="onPhotoClick(photo)"
         role="button"
         aria-label="Ouvrir les détails de la photo">
+        <!-- like btn -->
         <button
           class="like-btn"
           [class.liked]="photo.liked"
@@ -27,14 +27,12 @@
           <ion-icon [name]="photo.liked ? 'heart' : 'heart-outline'"></ion-icon>
         </button>
 
-        <div class="photo-frame" aria-hidden="false">
+        <!-- click sur la frame ouvre le modal -->
+        <div class="photo-frame" (click)="openPhotoModalAt(i)">
           <ion-img [src]="photo.webviewPath" class="photo-img" [alt]="'Photo ' + (i + 1)"></ion-img>
         </div>
 
-        <div class="photo-meta">
-          <span class="photo-name">{{ formatDate(photo.createdAt) }}</span>
-          <span class="photo-loc" *ngIf="photo.lat != null && photo.lng != null"> • {{ photo.lat.toFixed(3) }}, {{ photo.lng.toFixed(3) }}</span>
-        </div>
+        <!-- NOTE: on retire ici toutes les infos sous la vignette (pas de date/coord affichées) -->
       </article>
     </section>
   </div>

@@ -1,0 +1,66 @@
+/* Make the modal appear as a bottom sheet */
+.photo-modal-bottom .modal-wrapper {
+  align-items: flex-end; /* push modal to bottom */
+}
+
+/* modal card */
+.modal-card {
+  width: 100%;
+  max-width: 880px;
+  background: var(--ion-background-color, #fff);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.12);
+  margin: 0 auto;
+}
+
+/* preview */
+.preview-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.img-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-height: 50vh;
+  overflow: hidden;
+  background: #000;
+  border-radius: 8px;
+}
+
+.preview-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* prev/next overlays */
+.nav {
+  position: relative;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav:active { transform: scale(.98); }
+
+/* meta */
+.meta {
+  padding: 12px 6px 6px 6px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}

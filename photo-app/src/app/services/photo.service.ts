@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { UserPhoto } from "../models/photo.model";
 
 @Injectable({
@@ -24,7 +25,6 @@ export class PhotoService {
       }
       try {
         this.photos = JSON.parse(ret.value) as UserPhoto[];
-        // defensive: ensure array
         if (!Array.isArray(this.photos)) {
           console.warn('[PhotoService] Unexpected photos format, resetting.');
           this.photos = [];
@@ -47,7 +47,6 @@ export class PhotoService {
       await Preferences.set({ key: this.STORAGE_KEY, value: JSON.stringify(this.photos) });
     } catch (err: any) {
       console.error('[PhotoService] savePhotos error', err);
-      // if storage seems corrupted or fails repeatedly, attempt to clear and fallback
       try {
         console.warn('[PhotoService] Attempting to clear storage key due to save failure.');
         await Preferences.remove({ key: this.STORAGE_KEY });
@@ -57,9 +56,22 @@ export class PhotoService {
     }
   }
 
-  // Helper : essai de récupérer la position (navigator.geolocation) avec timeout
+  // Helper : essai de récupérer la position (essaye Capacitor Geolocation puis fallback navigator)
   private async tryGetLocation(timeoutMs = 5000): Promise<{ lat: number; lng: number } | null> {
+    // Try Capacitor Geolocation plugin first (asks permission on native)
+    try {
+      const pos = await Geolocation.getCurrentPosition({ timeout: timeoutMs });
+      if (pos && pos.coords) {
+        return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      }
+    } catch (e) {
+      // ignore and fallback
+      console.warn('[PhotoService] Geolocation plugin failed or denied:', e);
+    }
+
+    // Fallback to navigator.geolocation (for web/dev)
     if (!('geolocation' in navigator)) return null;
+
     return new Promise((resolve) => {
       const timer = setTimeout(() => resolve(null), timeoutMs);
       navigator.geolocation.getCurrentPosition(
@@ -67,8 +79,9 @@ export class PhotoService {
           clearTimeout(timer);
           resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         },
-        () => {
+        (err) => {
           clearTimeout(timer);
+          console.warn('[PhotoService] navigator.geolocation failed:', err);
           resolve(null);
         },
         { enableHighAccuracy: false, maximumAge: 60_000, timeout: timeoutMs }
@@ -76,36 +89,30 @@ export class PhotoService {
     });
   }
 
-  // Vérifie/demande les permissions caméra/photos si possible (graceful fallback si API différente)
+  // Best-effort permission check for camera (non-blocking)
   private async ensureCameraPermission(): Promise<boolean> {
     try {
-      // Camera.checkPermissions() peut ne pas exister dans toutes les versions; on protège.
-      if (typeof Camera.checkPermissions === 'function') {
+      if (typeof (Camera as any).checkPermissions === 'function') {
         const status = await (Camera as any).checkPermissions();
-        // status peut contenir camera / photos / read etc. On considère granted si une permission utile est 'granted'
         const ok = Object.values(status).some((v: any) => v === 'granted' || v === 'limited');
         if (ok) return true;
-        // request permissions if possible
         if (typeof (Camera as any).requestPermissions === 'function') {
           const req = await (Camera as any).requestPermissions();
           return Object.values(req).some((v: any) => v === 'granted' || v === 'limited');
         }
       }
     } catch (err) {
-      // Ne pas bloquer si checkPermissions échoue, laisser Camera.getPhoto gérer l'erreur.
       console.warn('[PhotoService] Permission check/request failed (continuing):', err);
     }
     return true;
   }
 
   // Prend une photo et l'ajoute à la liste (stockée en dataUrl)
-  // Comportement : CameraSource.Camera sur mobile natif, CameraSource.Photos sur web (file picker)
   public async addNewToGallery(): Promise<void> {
     try {
       const platform = Capacitor.getPlatform();
       const source = platform === 'web' ? CameraSource.Photos : CameraSource.Camera;
 
-      // ensure permissions first (best-effort)
       await this.ensureCameraPermission();
 
       let captured: Photo | null = null;
@@ -118,9 +125,8 @@ export class PhotoService {
       } catch (camErr: any) {
         console.error('[PhotoService] Camera.getPhoto failed:', camErr);
         try { console.error('[PhotoService] camErr details:', JSON.stringify(camErr, Object.getOwnPropertyNames(camErr))); } catch {}
-        // On Android emulator, la caméra peut être absente → log utile pour l'utilisateur
         if (Capacitor.getPlatform() === 'android') {
-          console.warn('[PhotoService] If you run this on an Android emulator, ensure a virtual camera or use an image from the gallery.');
+          console.warn('[PhotoService] On Android emulator make sure virtual camera or gallery is available.');
         }
         return;
       }
@@ -136,10 +142,8 @@ export class PhotoService {
         return;
       }
 
-      // quick size check: avoid saving extremely large images into Preferences
       if (base64.length > this.MAX_BASE64_SIZE) {
         console.warn(`[PhotoService] Captured image too large (${(base64.length/1_000_000).toFixed(2)} MB). Not saving to Preferences.`);
-        // Optionally: downscale or use Filesystem approach here
         return;
       }
 
@@ -147,18 +151,12 @@ export class PhotoService {
       const id = Date.now().toString();
       const createdAt = Date.now();
 
-      // attempt to get location (best-effort)
       let lat: number | null = null;
       let lng: number | null = null;
       try {
         const pos = await this.tryGetLocation(4000);
-        if (pos) {
-          lat = pos.lat;
-          lng = pos.lng;
-        }
-      } catch (e) {
-        // ignore
-      }
+        if (pos) { lat = pos.lat; lng = pos.lng; }
+      } catch (e) { /* ignore */ }
 
       this.photos.unshift({ id, filepath: id, webviewPath: dataUrl, liked: false, createdAt, lat, lng });
       await this.savePhotos();

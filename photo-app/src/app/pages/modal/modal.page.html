@@ -1,0 +1,47 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-title>Détails</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="toggleLike()" [disabled]="!currentPhoto">
+        <ion-icon [name]="currentPhoto?.liked ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button>
+      <ion-button color="danger" fill="clear" (click)="deletePhoto()" [disabled]="!currentPhoto">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content">
+  <!-- Narrowing : on expose `currentPhoto` localement sous le nom `p` pour garantir qu'il n'est pas null -->
+  <ng-container *ngIf="currentPhoto as p">
+    <div class="modal-card">
+      <div class="preview-wrap">
+        <button class="nav prev" (click)="prev()" aria-label="Précédent">‹</button>
+
+        <div class="img-holder">
+          <img [src]="p.webviewPath" alt="Prévisualisation" class="preview-img" />
+        </div>
+
+        <button class="nav next" (click)="next()" aria-label="Suivant">›</button>
+      </div>
+
+      <div class="meta">
+        <div><strong>Date :</strong> {{ formatDate(p.createdAt) }}</div>
+
+        <!-- vérification explicite des coordonnées avant d'appeler toFixed -->
+        <div *ngIf="p.lat != null && p.lng != null" style="margin-top:8px">
+          <strong>Coordonnées :</strong> {{ p.lat.toFixed(5) }}, {{ p.lng.toFixed(5) }}
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- fallback si pas de photo (sécurité) -->
+  <div *ngIf="!currentPhoto" class="modal-empty">
+    <p>Photo non disponible.</p>
+  </div>
+</ion-content>
