@@ -1,13 +1,49 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>gallery</ion-title>
+    <ion-title>Gallery</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-    <ion-fab-button (click)="addPhotoToGallery()">
-      <ion-icon name="camera"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<ion-content fullscreen class="gallery-content">
+  <div class="container">
+    <div *ngIf="photoService.photos.length === 0" class="empty">
+      <ion-icon name="images" class="empty-icon"></ion-icon>
+      <h3>Aucune photo</h3>
+      <p>Appuie sur le bouton ci‑dessous pour prendre ta première photo.</p>
+    </div>
+
+    <section class="gallery-grid" *ngIf="photoService.photos.length > 0" aria-live="polite">
+      <article
+        class="photo-card"
+        *ngFor="let photo of photoService.photos; index as i"
+        (click)="onPhotoClick(photo)"
+        role="button"
+        aria-label="Ouvrir les détails de la photo">
+        <button
+          class="like-btn"
+          [class.liked]="photo.liked"
+          (click)="photoService.toggleLike(photo.id); $event.stopPropagation()"
+          aria-label="Aimer la photo">
+          <ion-icon [name]="photo.liked ? 'heart' : 'heart-outline'"></ion-icon>
+        </button>
+
+        <div class="photo-frame" aria-hidden="false">
+          <ion-img [src]="photo.webviewPath" class="photo-img" [alt]="'Photo ' + (i + 1)"></ion-img>
+        </div>
+
+        <div class="photo-meta">
+          <span class="photo-name">{{ formatDate(photo.createdAt) }}</span>
+          <span class="photo-loc" *ngIf="photo.lat != null && photo.lng != null"> • {{ photo.lat.toFixed(3) }}, {{ photo.lng.toFixed(3) }}</span>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <div class="fab-wrap" role="button" aria-label="Prendre une photo">
+    <ion-fab vertical="bottom" horizontal="center" slot="fixed" class="fab-camera">
+      <ion-fab-button (click)="addPhotoToGallery()" aria-label="Prendre une photo">
+        <ion-icon name="camera-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
 </ion-content>
